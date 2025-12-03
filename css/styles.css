@@ -1,5 +1,5 @@
 body {
-  background-color: #f9edd2;
+  background-color: #b81110;
   font-family: 'Noto Sans TC', sans;
   margin: 0;
   overflow: hidden;
@@ -52,6 +52,7 @@ body::-webkit-scrollbar {
   position: fixed;
   top: 0;
   width: 100vw;
+  pointer-events: none;
 }
 
 *,
@@ -72,7 +73,7 @@ body::-webkit-scrollbar {
   position: fixed;
 }
 .index:before {
-  background: #f4eddd;
+  background: #b81110;
   bottom: 0;
   left: 0;
   right: 0;
@@ -80,7 +81,7 @@ body::-webkit-scrollbar {
   z-index: 10000;
 }
 .index:after {
-  color: #a44d2d;
+  color: #efb244;
   content: '動畫賀卡載入中...';
   font-style: italic;
   font-weight: bold;
@@ -313,22 +314,15 @@ body::-webkit-scrollbar {
   bottom: 50px;
   z-index: 1;
 }
-@media (min-width: 1780px) {
+@media (max-width: 1780px) {
   .card-html {
-    margin-top: 620px;
-    font-size: 1.5em;
-    max-width: 360px;
-    margin-left: 520px;
+    width: 30%;
+    font-size: 1em;
+    right: 50px;
+    bottom: 20px;
   }
 }
-@media (min-width: 2000px) {
-  .card-html {
-    font-size: 1.6em;
-    max-width: 400px;
-    margin-left: 540px;
-    top: 0;
-  }
-}
+
 .card-html .send {
   text-align: right;
 }
@@ -489,7 +483,8 @@ body::-webkit-scrollbar {
 
 /* lotties */
 
-.content, .logo_container {
+.content,
+.logo_container {
   width: 100%;
   height: 100vh;
   position: absolute;
@@ -501,11 +496,11 @@ body::-webkit-scrollbar {
 
 @media (max-width: 1780px) {
   .content .items {
-    transform: scale(0.75);
+    transform: scale(0.8);
   }
 }
 
-@media (max-width: 1366px) {
+@media (max-width: 1280px) {
   .content .items {
     transform: scale(0.6);
   }
@@ -514,7 +509,7 @@ body::-webkit-scrollbar {
 .items {
   width: 100%;
   height: 100%;
-  position: relative;
+  position: absolute;
 }
 
 .item {
@@ -553,9 +548,21 @@ body::-webkit-scrollbar {
 
 .wave {
   width: 1458px;
-  height: 404px;
   margin-left: -1100px;
-  margin-top: 220px;
+  left: 50%;
+  bottom: 0;
+  position: absolute;
+}
+
+.person_image {
+  position: relative;
+}
+
+@media (max-width: 1780px) {
+  .wave {
+    width: 1000px;
+    margin-left: -800px;
+  }
 }
 
 .flower1-1 {
@@ -563,11 +570,12 @@ body::-webkit-scrollbar {
   height: 170px;
   margin-left: 620px;
   margin-top: -310px;
+  transform-origin: center center;
 }
 
 .flower1-2 {
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
   margin-left: 830px;
   margin-top: 270px;
 }
@@ -581,6 +589,7 @@ body::-webkit-scrollbar {
   height: 100px;
   margin-left: -280px;
   margin-top: -350px;
+  transform-origin: center center;
 }
 
 .flower1-3 img {
@@ -589,22 +598,49 @@ body::-webkit-scrollbar {
 
 .flower2 {
   width: 280px;
-  height: 290px;
   margin-left: 150px;
-  margin-top: 370px;
+  left: 50%;
+  bottom: -200px;
+  position: absolute;
+  transform-origin: center center;
 }
+
+@media (max-width: 1780px) {
+
+  .flower2 {
+    width: 200px;
+    margin-left: -50px;
+    bottom: -100px;
+  }
+}
+
 
 .light1 {
   width: 324px;
-  height: 512px;
   margin-left: -520px;
-  margin-top: -490px;
+  left: 50%;
+  top: 0;
+  position: absolute;
 }
 
 .light2 {
   width: 220px;
   margin-left: -220px;
-  margin-top: -525px;
+  left: 50%;
+  position: absolute;
+  top: 0;
+}
+
+@media (max-width: 1780px) {
+  .light1 {
+    width: 200px;
+    margin-left: -450px;
+  }
+
+  .light2 {
+    width: 150px;
+    margin-left: -280px;
+  }
 }
 
 .cloud1 {
@@ -648,7 +684,29 @@ body::-webkit-scrollbar {
   position: absolute;
 }
 
-@media (min-width: 1780px) {
+@media (max-width: 1780px) {
+  .logo1 {
+    width: 250px;
+  }
+  .logo2 {
+    width: 170px;
+  }
+
+  .logo3 {
+    width: 270px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .logo1 {
+    width: 230px;
+  }
+  .logo2 {
+    width: 160px;
+  }
+  .logo3 {
+    width: 240px;
+  }
 }
 @-webkit-keyframes floatAn {
   0% {
