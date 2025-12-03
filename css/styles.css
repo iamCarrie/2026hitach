@@ -281,19 +281,17 @@ body::-webkit-scrollbar {
 
 /* card */
 .card {
-  -ms-flex-item-align: start;
-  align-self: flex-start;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 20%;
 }
 .card-content {
   white-space: pre-wrap;
   word-break: break-all;
+  text-align: left;
+  width: 100%;
 }
 .card-identity {
   margin-top: 0.5em;
@@ -308,24 +306,12 @@ body::-webkit-scrollbar {
 }
 .card-html {
   color: #fff;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
   font-size: 1.2em;
   font-weight: bold;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  -moz-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  -o-transform: translateX(-50%);
-  transform: translateX(-50%);
-  margin-left: 400px;
-  margin-top: 550px;
-  max-width: 290px;
   position: absolute;
+  right: 100px;
+  bottom: 50px;
   z-index: 1;
-  top: 90px;
 }
 @media (min-width: 1780px) {
   .card-html {
@@ -503,20 +489,24 @@ body::-webkit-scrollbar {
 
 /* lotties */
 
-.content {
+.content, .logo_container {
   width: 100%;
   height: 100vh;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 @media (max-width: 1780px) {
-  .content {
+  .content .items {
     transform: scale(0.75);
   }
 }
 
 @media (max-width: 1366px) {
-  .content {
+  .content .items {
     transform: scale(0.6);
   }
 }
@@ -564,7 +554,7 @@ body::-webkit-scrollbar {
 .wave {
   width: 1458px;
   height: 404px;
-  margin-left: -1000px;
+  margin-left: -1100px;
   margin-top: 220px;
 }
 
@@ -583,7 +573,7 @@ body::-webkit-scrollbar {
 }
 
 .flower1-2 img {
-  transform: rotate(-10deg);
+  /* transform: rotate(-10deg); */
 }
 
 .flower1-3 {
@@ -636,6 +626,26 @@ body::-webkit-scrollbar {
   height: 801px;
   margin-left: -585px;
   margin-top: -275px;
+}
+
+.logo1 {
+  width: 352px;
+  left: 20px;
+  top: 20px;
+  position: absolute;
+}
+.logo2 {
+  width: 238px;
+  right: 20px;
+  top: 20px;
+  position: absolute;
+}
+
+.logo3 {
+  width: 365px;
+  left: 20px;
+  bottom: 20px;
+  position: absolute;
 }
 
 @media (min-width: 1780px) {
