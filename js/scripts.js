@@ -230,8 +230,8 @@
             opacity: 0,
             y: -250,
           });
-          gsap.set('.lantern_left', { transformOrigin: '22% 0%', rotation: -12 });
-          gsap.set('.lantern_right', { transformOrigin: '97% 0%', rotation: 12 });
+          gsap.set('.lantern_left', { transformOrigin: '30.5% 0%', rotation: -12 });
+          gsap.set('.lantern_right', { transformOrigin: '74.3% 0%', rotation: 12 });
           gsap.set('.knot', { transformOrigin: '50% 0%', rotation: -10 });
 
           gsap.set('.flower_top', {
@@ -368,9 +368,10 @@
               duration: 1.2,
               ease: 'power2.out',
               onComplete: () => {
+                // 慢慢上下浮動
                 gsap.to('.goat', {
-                  y: -12,
-                  duration: 2.5,
+                  y: -35,
+                  duration: 3.5,
                   ease: 'sine.inOut',
                   repeat: -1,
                   yoyo: true,
