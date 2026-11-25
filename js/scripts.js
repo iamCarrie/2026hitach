@@ -176,9 +176,21 @@
           $('.card-content').text(content);
           $('.card-name').text(name);
 
+          fitStage();
+          $(window).on('resize', fitStage);
+
           initAnimation();
 
           sendEmail(data);
+        }
+
+        // 依視窗大小等比縮放 1920x1080 舞台（完整顯示，不裁切）
+        function fitStage() {
+          const scale = Math.min(
+            window.innerWidth / 1920,
+            window.innerHeight / 1080
+          );
+          document.documentElement.style.setProperty('--stage-scale', scale);
         }
 
         // 啟用動畫
@@ -206,45 +218,43 @@
           // 全部動畫都載入後，將所有 .lottie 檔案 opacity 設定為 1
           $('.index').addClass('loaded');
 
-          // cloudperson 進場動畫
-
+          // 2026 賀卡進場動畫
           const kv = gsap.timeline({
             paused: true,
             delay: 0.5,
           });
 
           // 設定初始狀態
-          gsap.set('.slogan', {
+          // 燈籠、中國結：從上方垂下，擺動支點設在吊繩頂端
+          gsap.set('.lantern, .knot', {
             opacity: 0,
-            scale: 0.8,
+            y: -250,
           });
+          gsap.set('.lantern_left', { transformOrigin: '22% 0%', rotation: -12 });
+          gsap.set('.lantern_right', { transformOrigin: '97% 0%', rotation: 12 });
+          gsap.set('.knot', { transformOrigin: '50% 0%', rotation: -10 });
 
-          gsap.set('.wave', {
+          gsap.set('.flower_top', {
             opacity: 0,
-            x: 100,
-            y: 50,
-          });
-
-          gsap.set(' .flower1-1, .flower1-2, .flower1-3, .flower2', {
-            opacity: 0,
-            scale: 0.8,
-          });
-
-          gsap.set('.light1, .light2', {
-            opacity: 0,
-            x: -10,
             y: -30,
-            transformOrigin: 'center top',
+            transformOrigin: '22% 0%',
           });
 
-          gsap.set('.cloud2', {
+          gsap.set('.goat', {
             opacity: 0,
-            x: 20,
+            x: 150,
+            scale: 0.95,
+            transformOrigin: 'center center',
           });
 
-          gsap.set('.cloud1', {
+          gsap.set('.cloud_01, .cloud_03', {
             opacity: 0,
-            x: -20,
+            x: 80,
+          });
+
+          gsap.set('.cloud_02', {
+            opacity: 0,
+            x: -80,
           });
 
           gsap.set('.person', {
@@ -256,30 +266,159 @@
             transformOrigin: 'center bottom',
           });
 
-          kv.to('.slogan', {
+          gsap.set('.slogan', {
+            opacity: 0,
+            scale: 0.8,
+          });
+
+          gsap.set('.light', {
+            opacity: 0,
+            scale: 0,
+            transformOrigin: 'center center',
+          });
+
+          gsap.set('.card-html', {
+            opacity: 0,
+            y: 30,
+          });
+
+          // 燈籠、中國結垂下進場：下降時帶著晃動，回彈後停在中間
+          kv.to('.lantern, .knot', {
             opacity: 1,
-            x: 0,
-            scale: 1,
-            duration: 0.6,
-            delay: 0.5,
-            stagger: 0.2,
+            y: 0,
+            duration: 1,
+            stagger: 0.12,
             ease: 'power2.out',
-            onComplete: () => {
-              // 輪流微微閃動效果
-              const slogans = document.querySelectorAll('.slogan');
-              slogans.forEach((slogan, index) => {
-                gsap.to(slogan, {
-                  opacity: 0.6,
-                  duration: 0.4,
-                  delay: index * 0.15,
-                  ease: 'power2.inOut',
+          });
+          kv.to(
+            '.lantern, .knot',
+            {
+              rotation: 0,
+              duration: 1.8,
+              stagger: 0.12,
+              ease: 'elastic.out(1.2, 0.35)',
+              onComplete: () => {
+                // 之後持續微微擺動，像被風吹
+                gsap.fromTo(
+                  '.lantern_left',
+                  { rotation: -2.5 },
+                  {
+                    rotation: 2.5,
+                    duration: 2.2,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+                gsap.fromTo(
+                  '.lantern_right',
+                  { rotation: 2.5 },
+                  {
+                    rotation: -2.5,
+                    duration: 2.5,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+                gsap.fromTo(
+                  '.knot',
+                  { rotation: -3 },
+                  {
+                    rotation: 3,
+                    duration: 1.8,
+                    stagger: 0.4,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+              },
+            },
+            '<'
+          );
+
+          kv.to(
+            '.flower_top',
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.8,
+              ease: 'power2.out',
+              onComplete: () => {
+                // 花枝隨風微微搖曳
+                gsap.to('.flower_top', {
+                  rotation: 2,
+                  duration: 2.5,
+                  ease: 'sine.inOut',
                   repeat: -1,
                   yoyo: true,
-                  repeatDelay: (slogans.length - 1) * 0.2,
                 });
-              });
+              },
             },
-          },'-=0.35');
+            '-=1.6'
+          );
+
+          kv.to(
+            '.goat',
+            {
+              opacity: 1,
+              x: 0,
+              scale: 1,
+              duration: 1.2,
+              ease: 'power2.out',
+              onComplete: () => {
+                gsap.to('.goat', {
+                  y: -12,
+                  duration: 2.5,
+                  ease: 'sine.inOut',
+                  repeat: -1,
+                  yoyo: true,
+                });
+              },
+            },
+            '-=1.2'
+          );
+
+          kv.to(
+            '.cloud',
+            {
+              opacity: 1,
+              x: 0,
+              duration: 1,
+              stagger: 0.15,
+              ease: 'power2.out',
+              onComplete: () => {
+                // 雲朵持續左右飄動，帶一點上下浮動
+                gsap.to('.cloud_01', {
+                  x: 25,
+                  y: -6,
+                  duration: 2.8,
+                  ease: 'sine.inOut',
+                  repeat: -1,
+                  yoyo: true,
+                });
+                gsap.to('.cloud_02', {
+                  x: -30,
+                  y: 5,
+                  duration: 3.2,
+                  ease: 'sine.inOut',
+                  repeat: -1,
+                  yoyo: true,
+                });
+                gsap.to('.cloud_03', {
+                  x: 35,
+                  y: -8,
+                  duration: 3.6,
+                  delay: 0.4,
+                  ease: 'sine.inOut',
+                  repeat: -1,
+                  yoyo: true,
+                });
+              },
+            },
+            '-=0.8'
+          );
 
           kv.to(
             '.person',
@@ -293,7 +432,7 @@
               ease: 'power2.out',
               onComplete: () => {
                 gsap.to('.person', {
-                  y: -100,
+                  y: -20,
                   duration: 2,
                   delay: 0.5,
                   ease: 'sine.inOut',
@@ -303,7 +442,7 @@
 
                 // 持續左下右上的微微晃動
                 gsap.to('.person_image', {
-                  rotation: '+=15',
+                  rotation: '+=6',
                   duration: 2,
                   ease: 'sine.inOut',
                   repeat: -1,
@@ -311,161 +450,83 @@
                 });
               },
             },
-            '-=0.3'
+            '-=0.7'
           );
 
           kv.to(
-            '.wave',
+            '.slogan',
             {
               opacity: 1,
-              x: 0,
+              scale: 1,
+              duration: 0.6,
+              stagger: 0.2,
+              ease: 'power2.out',
+              onComplete: () => {
+                // 輪流微微閃動效果
+                const slogans = document.querySelectorAll('.slogan');
+                slogans.forEach((slogan, index) => {
+                  gsap.to(slogan, {
+                    opacity: 0.8,
+                    duration: 0.4,
+                    delay: index * 0.15,
+                    ease: 'power2.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                    repeatDelay: (slogans.length - 1) * 0.2,
+                  });
+                });
+              },
+            },
+            '-=0.8'
+          );
+
+          kv.to(
+            '.light',
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.5,
+              stagger: 0.1,
+              ease: 'back.out(2)',
+              onComplete: () => {
+                document.querySelectorAll('.light').forEach((light, index) => {
+                  // 慢慢 360 度旋轉，順逆時針交錯；
+                  // 每個起始角度、轉速、開始時間都不同，避免彼此同步
+                  gsap.set(light, { rotation: gsap.utils.random(0, 360) });
+                  gsap.to(light, {
+                    rotation: index % 2 === 0 ? '+=360' : '-=360',
+                    duration: gsap.utils.random(8, 20),
+                    delay: gsap.utils.random(0, 3),
+                    ease: 'none',
+                    repeat: -1,
+                  });
+
+                  // 不同步地微微閃爍
+                  gsap.to(light, {
+                    scale: 0.75,
+                    opacity: 0.6,
+                    duration: gsap.utils.random(0.8, 2.2),
+                    delay: gsap.utils.random(0, 2),
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  });
+                });
+              },
+            },
+            '-=0.4'
+          );
+
+          kv.to(
+            '.card-html',
+            {
+              opacity: 1,
               y: 0,
               duration: 0.6,
               ease: 'power2.out',
-              onComplete: () => {
-                gsap.to('.wave', {
-                  x: -100,
-                  y: 50,
-                  duration: 2.5,
-                  ease: 'sine.inOut',
-                  repeat: -1,
-                  yoyo: true,
-                });
-              },
             },
-            '-=1'
+            '-=0.3'
           );
-
-          kv.to(
-            '.flower2',
-            {
-              opacity: 1,
-              scale: 1,
-              duration: 0.6,
-              ease: 'power2.out',
-              onComplete: () => {
-                // 持續轉動
-                const rotationTimeline2 = gsap.timeline({
-                  repeat: -1,
-                  repeatRefresh: true,
-                });
-                rotationTimeline2.to('.flower2', {
-                  rotation: '+=360',
-                  duration: 4,
-                  ease: 'none',
-                });
-                // 微微放大縮小
-                gsap.to('.flower2', {
-                  scale: 1.1,
-                  duration: 2,
-                  ease: 'sine.inOut',
-                  repeat: -1,
-                  yoyo: true,
-                });
-              },
-            },
-            '-=0.5'
-          );
-
-          kv.to(
-            '.flower1-1, .flower1-2, .flower1-3',
-            {
-              opacity: 1,
-              scale: 1,
-              duration: 0.6,
-              stagger: 0.6,
-              ease: 'power2.out',
-              onComplete: () => {
-                // 持續轉動 - 分別轉不同方向
-                const rotationTimeline = gsap.timeline({
-                  repeat: -1,
-                  repeatRefresh: true,
-                });
-                rotationTimeline.to('.flower1-1', {
-                  rotation: '+=360',
-                  duration: 4,
-                  ease: 'none',
-                });
-                rotationTimeline.to(
-                  '.flower1-2',
-                  {
-                    rotation: '-=360',
-                    duration: 4,
-                    ease: 'none',
-                  },
-                  0
-                );
-                rotationTimeline.to(
-                  '.flower1-3',
-                  {
-                    rotation: '+=360',
-                    duration: 4,
-                    ease: 'none',
-                  },
-                  0
-                );
-                // 微微放大縮小
-                gsap.to('.flower1-1, .flower1-2, .flower1-3', {
-                  scale: 1.1,
-                  duration: 2,
-                  stagger: 0.2,
-                  ease: 'sine.inOut',
-                  repeat: -1,
-                  yoyo: true,
-                });
-              },
-            },
-            '-=1'
-          );
-
-          kv.to(
-            '.cloud1, .cloud2',
-            {
-              opacity: 1,
-              x: 0,
-              duration: 0.6,
-              ease: 'power2.out',
-              onComplete: () => {
-                gsap.to('.cloud1', {
-                  x: -30,
-                  duration: 2,
-                  ease: 'sine.inOut',
-                  repeat: -1,
-                  yoyo: true,
-                });
-
-                gsap.to('.cloud2', {
-                  x: 30,
-                  duration: 2,
-                  delay: 0.5,
-                  ease: 'sine.inOut',
-                  repeat: -1,
-                  yoyo: true,
-                });
-              },
-            },
-            '-=0.5'
-          );
-
-          kv.to(".light1, .light2", {
-            opacity: 1,
-            x: 0,
-            y: 0,
-            rotation: 0,
-            duration: 0.6,
-            ease: "power2.out",
-            onComplete: () => {
-              // 持續左右晃動，像風吹一樣同方向，帶有反彈效果
-              gsap.to(".light1, .light2", {
-                x: -15,
-                rotation: -5,
-                duration: 2,
-                ease: "sine.inOut",
-                repeat: -1,
-                yoyo: true,
-              });
-            },
-          }, '-=1.5');
 
           kv.play();
           // 進場動畫

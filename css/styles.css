@@ -32,7 +32,7 @@ body::-webkit-scrollbar {
 }
 
 .bg-card {
-  background: url('../images/bg_card.jpg') top center no-repeat;
+  background: url('../images/bg_index.jpg') top center no-repeat;
   /* background: url('../images/card.jpg') top center no-repeat; */
   background-attachment: fixed;
   background-size: cover;
@@ -41,18 +41,6 @@ body::-webkit-scrollbar {
   position: fixed;
   top: 0;
   width: 100vw;
-}
-
-.bg-gold {
-  background: url('../images/gold_dote.png') top center no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
-  height: 100vh;
-  left: 0;
-  position: fixed;
-  top: 0;
-  width: 100vw;
-  pointer-events: none;
 }
 
 *,
@@ -305,25 +293,33 @@ body::-webkit-scrollbar {
 .card-link {
   display: block;
 }
+/* 賀詞文字：右緣對齊設計稿 x=1772 */
 .card-html {
   color: #fff;
-  font-size: 1.2em;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  line-height: 50px;
+  text-shadow: 0 2px 6px rgba(120, 0, 0, 0.5);
   position: absolute;
-  right: 100px;
-  bottom: 50px;
-  z-index: 1;
+  right: 148px;
+  top: 780px;
+  width: auto;
+  max-width: 620px;
 }
-@media (max-width: 1780px) {
-  .card-html {
-    width: 30%;
-    font-size: 1em;
-    right: 50px;
-    bottom: 20px;
-  }
+.card-html .card-content {
+  width: auto;
+}
+.card-html .card-identity {
+  margin-top: 0;
+}
+.card-html .card-name {
+  margin-right: 0.3em;
 }
 
 .card-html .send {
+  margin-top: 30px;
+  margin-right: -23px;
   text-align: right;
 }
 .card-html .button {
@@ -331,46 +327,28 @@ body::-webkit-scrollbar {
   -o-transition: all 0.2s;
   -moz-transition: all 0.2s;
   transition: all 0.2s;
-  text-shadow: 0 0 5px #c85733, 0 0 5px #c85733, 0 0 5px #c85733,
-    0 0 5px #c85733, 0 0 5px #c85733, 0 0 5px #c85733;
   color: white;
-  background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#eb6b4a),
-    to(#f0b67b)
-  );
-  background: linear-gradient(to bottom, #f78b07, #eac77e);
-  -webkit-box-shadow: 0 5px 0 #a5451b;
-  box-shadow: 0 5px 0 #a5451b;
-  padding: 4.8px 16px 8px;
-  padding: 0.3rem 1rem 0.5rem;
+  background: linear-gradient(to bottom, #f08a00 0%, #f39800 60%, #f7c35c 100%);
+  border-radius: 24px;
+  -webkit-box-shadow: 0 3px 8px rgba(120, 30, 0, 0.45);
+  box-shadow: 0 3px 8px rgba(120, 30, 0, 0.45);
+  font-size: 20px;
+  letter-spacing: 2px;
+  line-height: 46px;
+  padding: 0;
+  text-align: center;
+  text-shadow: none;
+  width: 272px;
 }
 .card-html .button:hover,
-.card-html .button:active {
-  background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(#eb6b4a),
-    to(#f0b67b)
-  );
-  background: -webkit-linear-gradient(top, #eb6b4a, #f0b67b);
-  background: -moz- oldlinear-gradient(top, #eb6b4a, #f0b67b);
-  background: -o-linear-gradient(top, #eb6b4a, #f0b67b);
-  background: linear-gradient(to bottom, #eb6b4a, #f0b67b);
+.card-html .button:active,
+.card-html .button:focus {
+  background: linear-gradient(to bottom, #e67e00 0%, #f08a00 60%, #f5b440 100%);
   -webkit-transform: scale(1.05);
   -moz-transform: scale(1.05);
   -ms-transform: scale(1.05);
   -o-transform: scale(1.05);
   transform: scale(1.05);
-}
-@media (min-width: 1780px) {
-  .card-html .button {
-    padding: 9.6px 24px;
-    padding: 0.6rem 1.5rem;
-  }
 }
 .card-img {
   max-width: 1200px;
@@ -494,219 +472,204 @@ body::-webkit-scrollbar {
   bottom: 0;
 }
 
-@media (max-width: 1780px) {
-  .content .items {
-    transform: scale(0.8);
-  }
-}
-
-@media (max-width: 1280px) {
-  .content .items {
-    transform: scale(0.6);
-  }
-}
-
+/* 舞台：固定 1920x1080（與設計稿 card.jpg 相同），
+   由 scripts.js 依視窗大小寫入 --stage-scale 等比縮放 */
 .items {
-  width: 100%;
-  height: 100%;
+  width: 1920px;
+  height: 1080px;
   position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -960px;
+  margin-top: -540px;
+  transform: scale(var(--stage-scale, 1));
+  transform-origin: center center;
 }
 
 .item {
   position: absolute;
-  left: 50%;
-  top: 50%;
 }
 
-.slogan_image_0 {
-  width: 460px;
-  height: 455px;
-  margin-left: -1020px;
-  margin-top: -400px;
+/* 以下座標皆為設計稿上的 left / top (px) */
+.flower_top {
+  width: 454px;
+  left: 475px;
+  top: 0;
 }
 
-.slogan_image_1 {
-  width: 410px;
-  height: 471px;
-  margin-left: -685px;
-  margin-top: -70px;
+.goat {
+  width: 1128px;
+  left: 210px;
+  top: 90px;
 }
 
-.slogan_image_2 {
-  width: 534px;
-  height: 481px;
-  margin-left: 230px;
-  margin-top: -450px;
+.cloud_01 {
+  width: 260px;
+  left: 952px;
+  top: 419px;
 }
 
-.slogan_image_3 {
-  width: 427px;
-  height: 467px;
-  margin-left: 620px;
-  margin-top: -170px;
+.cloud_02 {
+  width: 798px;
+  left: 122px;
+  top: 675px;
 }
 
-.wave {
-  width: 1458px;
-  margin-left: -1100px;
-  left: 50%;
-  bottom: 0;
-  position: absolute;
+.cloud_03 {
+  width: 740px;
+  left: 723px;
+  top: 680px;
+}
+
+.person {
+  width: 578px;
+  height: 492px;
+  left: 141px;
+  top: 406px;
 }
 
 .person_image {
   position: relative;
+  width: 100%;
 }
 
-@media (max-width: 1780px) {
-  .wave {
-    width: 1000px;
-    margin-left: -800px;
-  }
+.knot_right {
+  width: 156px;
+  left: 1058px;
+  top: 0;
 }
 
-.flower1-1 {
-  width: 170px;
-  height: 170px;
-  margin-left: 620px;
-  margin-top: -310px;
-  transform-origin: center center;
+.slogan {
+  width: 375px;
+  height: 375px;
 }
 
-.flower1-2 {
-  width: 100px;
-  height: 100px;
-  margin-left: 830px;
-  margin-top: 270px;
+.slogan_image_0 {
+  left: 1190px;
+  top: 132px;
 }
 
-.flower1-2 img {
-  /* transform: rotate(-10deg); */
+.slogan_image_1 {
+  left: 1471px;
+  top: 130px;
 }
 
-.flower1-3 {
-  width: 100px;
-  height: 100px;
-  margin-left: -280px;
-  margin-top: -350px;
-  transform-origin: center center;
+.slogan_image_2 {
+  left: 1183px;
+  top: 429px;
 }
 
-.flower1-3 img {
-  transform: rotate(-10deg);
+.slogan_image_3 {
+  left: 1478px;
+  top: 422px;
 }
-
-.flower2 {
-  width: 280px;
-  margin-left: 150px;
-  left: 50%;
-  bottom: -200px;
-  position: absolute;
-  transform-origin: center center;
-}
-
-@media (max-width: 1780px) {
-
-  .flower2 {
-    width: 200px;
-    margin-left: -50px;
-    bottom: -100px;
-  }
-}
-
 
 .light1 {
-  width: 324px;
-  margin-left: -520px;
-  left: 50%;
-  top: 0;
-  position: absolute;
+  width: 80px;
+  left: 440px;
+  top: 72px;
 }
 
 .light2 {
-  width: 220px;
-  margin-left: -220px;
-  left: 50%;
+  width: 67px;
+  left: 267px;
+  top: 157px;
+}
+
+.light3 {
+  width: 77px;
+  left: 1330px;
+  top: 77px;
+}
+
+.light4 {
+  width: 76px;
+  left: 1368px;
+  top: 764px;
+}
+
+.light5 {
+  width: 127px;
+  left: 144px;
+  top: 809px;
+}
+
+.light6 {
+  width: 147px;
+  left: 427px;
+  top: 954px;
+}
+
+/* 全螢幕容器不攔截點擊，避免擋住舞台內的按鈕 */
+.lantern_container,
+.logo_container {
+  pointer-events: none;
+}
+.logo_container a {
+  pointer-events: auto;
+}
+
+.lantern_container {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+/* 燈籠貼齊視窗最左、最右，尺寸跟著舞台比例縮放 */
+.lantern_container img {
   position: absolute;
   top: 0;
 }
 
-@media (max-width: 1780px) {
-  .light1 {
-    width: 200px;
-    margin-left: -450px;
-  }
-
-  .light2 {
-    width: 150px;
-    margin-left: -280px;
-  }
+.lantern_left {
+  width: calc(372px * var(--stage-scale, 1));
+  left: 0;
 }
 
-.cloud1 {
-  width: 233px;
-  height: 174px;
-  margin-left: -610px;
-  margin-top: -230px;
+.lantern_container .knot_left {
+  width: calc(125px * var(--stage-scale, 1));
+  left: calc(38px * var(--stage-scale, 1));
+  top: calc(371px * var(--stage-scale, 1));
 }
 
-.cloud2 {
-  width: 270px;
-  height: 210px;
-  margin-left: 310px;
-  margin-top: 55px;
+.lantern_right {
+  width: calc(228px * var(--stage-scale, 1));
+  right: 0;
 }
 
-.person {
-  width: 1011px;
-  height: 801px;
-  margin-left: -585px;
-  margin-top: -275px;
+/* logo 貼齊視窗四角，尺寸跟著舞台比例縮放 */
+.logo1,
+.logo2,
+.logo3 {
+  position: absolute;
+  z-index: 1;
 }
 
 .logo1 {
-  width: 352px;
-  left: 20px;
-  top: 20px;
-  position: absolute;
+  width: calc(362px * var(--stage-scale, 1));
+  left: calc(46px * var(--stage-scale, 1));
+  top: calc(39px * var(--stage-scale, 1));
 }
+
 .logo2 {
-  width: 238px;
-  right: 20px;
-  top: 20px;
-  position: absolute;
+  width: calc(238px * var(--stage-scale, 1));
+  right: calc(52px * var(--stage-scale, 1));
+  top: calc(46px * var(--stage-scale, 1));
 }
 
 .logo3 {
-  width: 365px;
-  left: 20px;
-  bottom: 20px;
-  position: absolute;
+  width: calc(365px * var(--stage-scale, 1));
+  left: calc(50px * var(--stage-scale, 1));
+  bottom: calc(32px * var(--stage-scale, 1));
 }
 
-@media (max-width: 1780px) {
-  .logo1 {
-    width: 250px;
-  }
-  .logo2 {
-    width: 170px;
-  }
-
-  .logo3 {
-    width: 270px;
-  }
-}
-
-@media (max-width: 1280px) {
-  .logo1 {
-    width: 230px;
-  }
-  .logo2 {
-    width: 160px;
-  }
-  .logo3 {
-    width: 240px;
-  }
+.logo1 img,
+.logo2 img,
+.logo3 img {
+  display: block;
 }
 @-webkit-keyframes floatAn {
   0% {
