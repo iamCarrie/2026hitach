@@ -687,22 +687,23 @@ body::-webkit-scrollbar {
 
 /* 燈籠圖兩側有加寬（擺動時才不會露出切邊），
    多出的寬度推到視窗外，以吊繩頂點對齊原位置 */
-/* 左燈籠往左推，只露出約 3/4 */
+/* 左燈籠往左推，吊繩從視窗左側邊緣進來，不卡在左上角 */
 .lantern_left {
   width: calc(420px * var(--stage-scale, 1));
-  left: calc(-118px * var(--stage-scale, 1));
+  left: calc(-150px * var(--stage-scale, 1));
 }
 
 /* 中國結在燈籠下層，頂端繩子往上塞進燈籠身後面，看不到斷口 */
 .lantern_container .knot_left {
   width: calc(125px * var(--stage-scale, 1));
-  left: calc(2px * var(--stage-scale, 1));
-  top: calc(300px * var(--stage-scale, 1));
+  left: calc(-2px * var(--stage-scale, 1));
+  top: calc(340px * var(--stage-scale, 1));
 }
 
+/* 右燈籠往右推，吊繩從視窗右側邊緣進來，不卡在右上角 */
 .lantern_right {
   width: calc(300px * var(--stage-scale, 1));
-  right: calc(-71px * var(--stage-scale, 1));
+  right: calc(-103px * var(--stage-scale, 1));
 }
 
 /* logo 貼齊視窗四角，尺寸跟著舞台比例縮放 */
