@@ -407,7 +407,6 @@
             x: -150,
             y: 150,
             scale: 0.9,
-            rotation: -10,
             transformOrigin: 'center bottom',
           });
           gsap.set('.light', { transformOrigin: 'center center' });
@@ -570,7 +569,6 @@
               x: 0,
               y: 0,
               scale: 1,
-              rotation: 0,
               duration: 1.3,
               ease: 'power2.out',
               onComplete: () => {
