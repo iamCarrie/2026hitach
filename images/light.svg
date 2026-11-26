@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <!-- 單道光芒：中心透明，往尖端漸亮 -->
+    <linearGradient id="ray" x1="75" y1="0" x2="135" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0.15" stop-color="#f7d27c" stop-opacity="0" />
+      <stop offset="0.45" stop-color="#fbe58c" stop-opacity="0.55" />
+      <stop offset="0.75" stop-color="#fdf08f" />
+      <stop offset="1" stop-color="#fef59a" />
+    </linearGradient>
+    <!-- 往中心漸細、尖端圓頭 -->
+    <path id="r" d="M82 75.6 L132.5 77.6 A2.6 2.6 0 0 0 132.5 72.4 L82 74.4 Z" fill="url(#ray)" />
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="0.5" />
+    </filter>
+  </defs>
+  <g filter="url(#soft)">
+    <use href="#r" transform="rotate(-22 75 75)" />
+    <use href="#r" transform="rotate(23 75 75)" />
+    <use href="#r" transform="rotate(68 75 75)" />
+    <use href="#r" transform="rotate(113 75 75)" />
+    <use href="#r" transform="rotate(158 75 75)" />
+    <use href="#r" transform="rotate(203 75 75)" />
+    <use href="#r" transform="rotate(248 75 75)" />
+    <use href="#r" transform="rotate(293 75 75)" />
+  </g>
+</svg>

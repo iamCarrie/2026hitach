@@ -271,7 +271,14 @@
             scale: 0.8,
           });
 
+          // 光芒：用圓形遮罩從中心往外長出來；起始角度各自隨機
           gsap.set('.light', {
+            clipPath: 'circle(0% at 50% 50%)',
+            rotation: () => gsap.utils.random(0, 360),
+            transformOrigin: 'center center',
+          });
+
+          gsap.set('.star', {
             opacity: 0,
             scale: 0,
             transformOrigin: 'center center',
@@ -369,7 +376,7 @@
               ease: 'power2.out',
               onComplete: () => {
                 // 慢慢上下浮動
-                gsap.to('.goat', {
+                gsap.to('.goat, .star1', {
                   y: -35,
                   duration: 3.5,
                   ease: 'sine.inOut',
@@ -407,7 +414,7 @@
                   repeat: -1,
                   yoyo: true,
                 });
-                gsap.to('.cloud_03', {
+                gsap.to('.cloud_03, .star3', {
                   x: 35,
                   y: -8,
                   duration: 3.6,
@@ -432,7 +439,7 @@
               duration: 1.3,
               ease: 'power2.out',
               onComplete: () => {
-                gsap.to('.person', {
+                gsap.to('.person, .star2', {
                   y: -20,
                   duration: 2,
                   delay: 0.5,
@@ -484,16 +491,14 @@
           kv.to(
             '.light',
             {
-              opacity: 1,
-              scale: 1,
-              duration: 0.5,
-              stagger: 0.1,
-              ease: 'back.out(2)',
+              clipPath: 'circle(71% at 50% 50%)',
+              duration: 0.8,
+              stagger: 0.15,
+              ease: 'power2.out',
               onComplete: () => {
                 document.querySelectorAll('.light').forEach((light, index) => {
                   // 慢慢 360 度旋轉，順逆時針交錯；
-                  // 每個起始角度、轉速、開始時間都不同，避免彼此同步
-                  gsap.set(light, { rotation: gsap.utils.random(0, 360) });
+                  // 每個轉速、開始時間都不同，避免彼此同步
                   gsap.to(light, {
                     rotation: index % 2 === 0 ? '+=360' : '-=360',
                     duration: gsap.utils.random(8, 20),
@@ -516,6 +521,33 @@
               },
             },
             '-=0.4'
+          );
+
+          kv.to(
+            '.star',
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.4,
+              stagger: 0.25,
+              ease: 'back.out(2)',
+              onComplete: () => {
+                // 閃光星各自不定時一閃一閃
+                document.querySelectorAll('.star').forEach((star) => {
+                  gsap.to(star, {
+                    scale: 0.35,
+                    opacity: 0.3,
+                    duration: gsap.utils.random(0.6, 1.1),
+                    delay: gsap.utils.random(0, 1.5),
+                    repeatDelay: gsap.utils.random(0.3, 1.2),
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  });
+                });
+              },
+            },
+            '-=0.3'
           );
 
           kv.to(

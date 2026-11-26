@@ -533,6 +533,27 @@ body::-webkit-scrollbar {
   width: 100%;
 }
 
+/* 四角閃光星：羊角上方、小幸左手、下方雲朵 */
+.star {
+  width: 90px;
+}
+
+.star1 {
+  left: 969px;
+  top: 172px;
+}
+
+.star2 {
+  width: 76px;
+  left: 218px;
+  top: 676px;
+}
+
+.star3 {
+  left: 958px;
+  top: 908px;
+}
+
 .knot_right {
   width: 156px;
   left: 1058px;
