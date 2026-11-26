@@ -150,6 +150,7 @@
 
           switch (pathname) {
             case '':
+            case 'index.html':
               return initCard();
             case 'form.html':
               return initForm();
@@ -179,6 +180,12 @@
           fitStage();
           $(window).on('resize', fitStage);
 
+          fitCardText();
+          // 網路字型載入後字寬會改變，再量一次
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(fitCardText);
+          }
+
           initAnimation();
 
           sendEmail(data);
@@ -191,6 +198,153 @@
             window.innerHeight / 1080
           );
           document.documentElement.style.setProperty('--stage-scale', scale);
+        }
+
+        // 賀詞放在 1920x1080 舞台座標內，跟著舞台等比縮放，
+        // 所以每個解析度的排版都一樣。文字太長時縮小字級，
+        // 讓整塊（賀詞＋署名＋按鈕）維持在「新春快樂」下方、不超出畫面。
+        // 量的是排版尺寸（不受 transform 縮放影響），結果與視窗大小無關。
+        const CARD_MAX_HEIGHT = 200; // 設計稿 y=763 ~ 963
+        const CARD_FONT_MAX = 30;
+        const CARD_FONT_MIN = 16;
+        function fitCardText() {
+          const card = document.querySelector('.card-html');
+          if (!card) return;
+          let size = CARD_FONT_MAX;
+          const apply = () => {
+            card.style.fontSize = size + 'px';
+            card.style.lineHeight = Math.round(size * 1.67) + 'px';
+          };
+          apply();
+          while (card.offsetHeight > CARD_MAX_HEIGHT && size > CARD_FONT_MIN) {
+            size -= 1;
+            apply();
+          }
+        }
+
+        // 燈籠鐘擺進場：各擺動端點角度（左燈籠；右燈籠鏡像），
+        // 最後一個角度＝持續擺動的幅度，銜接才不會跳
+        const LANTERN_SWING = [40, -14, 6, -2.5];
+        // 每一次擺動的時間（秒）：像真的吊著的物體，節奏接近、略為放慢
+        const LANTERN_SWING_TIME = [1.1, 1.0, 1.1];
+
+        // 光芒：由 8 道線段組成，每道從中心往外長出、再從中心端收回（像煙火綻放）
+        const RAY_ANGLES = [-22, 23, 68, 113, 158, 203, 248, 293];
+        const RAY_START = 82; // 線段靠中心端的 x（viewBox 150x150，中心 75）
+        const RAY_END = 136; // 線段尖端 x
+        function buildFirework(el, index) {
+          const NS = 'http://www.w3.org/2000/svg';
+          const make = (tag, attrs, parent) => {
+            const node = document.createElementNS(NS, tag);
+            Object.keys(attrs).forEach((k) => node.setAttribute(k, attrs[k]));
+            if (parent) parent.appendChild(node);
+            return node;
+          };
+          const id = 'fw' + index;
+          const svg = make('svg', { viewBox: '0 0 150 150' });
+          const defs = make('defs', {}, svg);
+          const grad = make(
+            'linearGradient',
+            {
+              id: id + 'g',
+              x1: RAY_START,
+              y1: 0,
+              x2: RAY_END,
+              y2: 0,
+              gradientUnits: 'userSpaceOnUse',
+            },
+            defs
+          );
+          [
+            [0, '#f7d27c', 0.35],
+            [0.5, '#fbe58c', 0.85],
+            [1, '#fef59a', 1],
+          ].forEach(([offset, color, opacity]) =>
+            make(
+              'stop',
+              { offset, 'stop-color': color, 'stop-opacity': opacity },
+              grad
+            )
+          );
+          const blur = make(
+            'filter',
+            { id: id + 'f', x: '-10%', y: '-10%', width: '120%', height: '120%' },
+            defs
+          );
+          make('feGaussianBlur', { stdDeviation: 0.5 }, blur);
+
+          const group = make('g', { filter: `url(#${id}f)` }, svg);
+          const clips = RAY_ANGLES.map((angle, k) => {
+            // 每道光芒用一個矩形遮罩控制「露出的那一段」
+            const clip = make(
+              'clipPath',
+              { id: `${id}c${k}`, clipPathUnits: 'userSpaceOnUse' },
+              defs
+            );
+            const rect = make(
+              'rect',
+              { x: RAY_START, y: 70, width: 0, height: 10 },
+              clip
+            );
+            const ray = make(
+              'g',
+              { transform: `rotate(${angle} 75 75)` },
+              group
+            );
+            make(
+              'path',
+              {
+                d: 'M82 75.6 L132.5 77.6 A2.6 2.6 0 0 0 132.5 72.4 L82 74.4 Z',
+                fill: `url(#${id}g)`,
+                'clip-path': `url(#${id}c${k})`,
+              },
+              ray
+            );
+            return rect;
+          });
+          el.appendChild(svg);
+          return clips;
+        }
+
+        function startFirework(el, index) {
+          const rects = buildFirework(el, index);
+          const length = RAY_END - RAY_START;
+          const tl = gsap.timeline({
+            repeat: -1,
+            repeatDelay: gsap.utils.random(0.8, 1.8),
+            // 每個光芒錯開開始時間
+            delay: index * 0.45 + gsap.utils.random(0, 0.3),
+          });
+          // 從中心往外長出
+          tl.fromTo(
+            rects,
+            { attr: { x: RAY_START, width: 0 } },
+            {
+              attr: { width: length },
+              duration: 0.9,
+              ease: 'power3.out',
+              stagger: { each: 0.04, from: 'random' },
+            }
+          );
+          // 整體微微擴散
+          tl.fromTo(
+            el,
+            { scale: 0.85, opacity: 1 },
+            { scale: 1.08, duration: 1.8, ease: 'power1.out' },
+            0
+          );
+          // 中心端往尖端收回、淡出
+          tl.to(
+            rects,
+            {
+              attr: { x: RAY_END, width: 0 },
+              duration: 0.7,
+              ease: 'power2.in',
+              stagger: { each: 0.04, from: 'random' },
+            },
+            1.3
+          );
+          tl.to(el, { opacity: 0.4, duration: 0.7, ease: 'power1.in' }, '<');
         }
 
         // 啟用動畫
@@ -224,136 +378,95 @@
             delay: 0.5,
           });
 
-          // 設定初始狀態
-          // 燈籠、中國結：從上方垂下，擺動支點設在吊繩頂端
-          gsap.set('.lantern, .knot', {
-            opacity: 0,
-            y: -250,
-          });
-          gsap.set('.lantern_left', { transformOrigin: '30.5% 0%', rotation: -12 });
-          gsap.set('.lantern_right', { transformOrigin: '74.3% 0%', rotation: 12 });
-          gsap.set('.knot', { transformOrigin: '50% 0%', rotation: -10 });
-
+          // 設定初始狀態 ------------------------------------------------
+          // 1. 花：微微旋轉進場，支點設在花枝根部
           gsap.set('.flower_top', {
             opacity: 0,
-            y: -30,
+            rotation: -12,
+            scale: 0.92,
             transformOrigin: '22% 0%',
           });
+          gsap.set('.flower_left', {
+            opacity: 0,
+            rotation: -14,
+            scale: 0.92,
+            transformOrigin: '0% 15%',
+          });
+          gsap.set('.flower_right', {
+            opacity: 0,
+            rotation: 14,
+            scale: 0.92,
+            transformOrigin: '85% 100%',
+          });
 
+          // 2. 羊 → 雲 → 人 → 上方閃爍光
+          // 羊：從左邊進來
           gsap.set('.goat', {
             opacity: 0,
-            x: 150,
+            x: -150,
             scale: 0.95,
             transformOrigin: 'center center',
           });
-
-          gsap.set('.cloud_01, .cloud_03', {
-            opacity: 0,
-            x: 80,
-          });
-
-          gsap.set('.cloud_02', {
-            opacity: 0,
-            x: -80,
-          });
-
+          gsap.set('.cloud_01, .cloud_03', { opacity: 0, x: 80 });
+          gsap.set('.cloud_02', { opacity: 0, x: -80 });
+          // 人：原地由小放大出現
           gsap.set('.person', {
             opacity: 0,
-            x: -150,
-            y: 150,
-            scale: 0.9,
-            rotation: -10,
-            transformOrigin: 'center bottom',
-          });
-
-          gsap.set('.slogan', {
-            opacity: 0,
-            scale: 0.8,
-          });
-
-          // 光芒：用圓形遮罩從中心往外長出來；起始角度各自隨機
-          gsap.set('.light', {
-            clipPath: 'circle(0% at 50% 50%)',
-            rotation: () => gsap.utils.random(0, 360),
+            scale: 0.4,
             transformOrigin: 'center center',
           });
-
+          gsap.set('.light', { transformOrigin: 'center center' });
           gsap.set('.star', {
             opacity: 0,
             scale: 0,
             transformOrigin: 'center center',
           });
 
-          gsap.set('.card-html', {
+          // 3. 四個字「新春快樂」與賀詞
+          gsap.set('.slogan', { opacity: 0, scale: 0.8 });
+          gsap.set('.card-html', { opacity: 0, y: 30 });
+
+          // 4. 燈籠像鐘擺一樣從左右兩側盪進來（支點在吊繩頂端），
+          //    中國結從上方微微降下
+          gsap.set('.lantern', { opacity: 0 });
+          gsap.set('.lantern_left', {
+            transformOrigin: '30.5% 0%',
+            rotation: LANTERN_SWING[0],
+          });
+          gsap.set('.lantern_right', {
+            transformOrigin: '74.3% 0%',
+            rotation: -LANTERN_SWING[0],
+          });
+          gsap.set('.knot', {
             opacity: 0,
-            y: 30,
+            y: -70,
+            rotation: 0,
+            transformOrigin: '50% 0%',
           });
 
-          // 燈籠、中國結垂下進場：下降時帶著晃動，回彈後停在中間
-          kv.to('.lantern, .knot', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            stagger: 0.12,
-            ease: 'power2.out',
-          });
-          kv.to(
-            '.lantern, .knot',
-            {
-              rotation: 0,
-              duration: 1.8,
-              stagger: 0.12,
-              ease: 'elastic.out(1.2, 0.35)',
-              onComplete: () => {
-                // 之後持續微微擺動，像被風吹
-                gsap.fromTo(
-                  '.lantern_left',
-                  { rotation: -2.5 },
-                  {
-                    rotation: 2.5,
-                    duration: 2.2,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
-                gsap.fromTo(
-                  '.lantern_right',
-                  { rotation: 2.5 },
-                  {
-                    rotation: -2.5,
-                    duration: 2.5,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
-                gsap.fromTo(
-                  '.knot',
-                  { rotation: -3 },
-                  {
-                    rotation: 3,
-                    duration: 1.8,
-                    stagger: 0.4,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
-              },
-            },
-            '<'
-          );
+          // 時間軸（秒），各段互相重疊 ------------------------------------
+          const T_FLOWER = 0;
+          const T_GOAT = 0.7;
+          const T_CLOUD = 1.3;
+          const T_PERSON = 1.8;
+          const T_SPARKLE = 2.6;
+          const T_SLOGAN = 3.0;
+          const T_CARD = 3.7;
+          const T_LANTERN = 4.0;
+          const T_KNOT = 5.6; // 燈籠擺幅變小後才降下，左邊中國結繩頭才不會露出
 
+          // 1. 花微微轉進來
           kv.to(
-            '.flower_top',
+            '.flower_top, .flower_left, .flower_right',
             {
               opacity: 1,
-              y: 0,
-              duration: 0.8,
+              rotation: 0,
+              scale: 1,
+              duration: 1.3,
+              stagger: 0.12,
               ease: 'power2.out',
               onComplete: () => {
-                // 花枝隨風微微搖曳
+                // 之後隨風微微晃動，三枝節奏錯開
                 gsap.to('.flower_top', {
                   rotation: 2,
                   duration: 2.5,
@@ -361,11 +474,34 @@
                   repeat: -1,
                   yoyo: true,
                 });
+                gsap.fromTo(
+                  '.flower_left',
+                  { rotation: 0 },
+                  {
+                    rotation: 1.5,
+                    duration: 2.8,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+                gsap.fromTo(
+                  '.flower_right',
+                  { rotation: 0 },
+                  {
+                    rotation: -1.5,
+                    duration: 3.2,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
               },
             },
-            '-=1.6'
+            T_FLOWER
           );
 
+          // 2-1. 羊
           kv.to(
             '.goat',
             {
@@ -385,9 +521,10 @@
                 });
               },
             },
-            '-=1.2'
+            T_GOAT
           );
 
+          // 2-2. 雲
           kv.to(
             '.cloud',
             {
@@ -425,19 +562,17 @@
                 });
               },
             },
-            '-=0.8'
+            T_CLOUD
           );
 
+          // 2-3. 人
           kv.to(
             '.person',
             {
               opacity: 1,
-              x: 0,
-              y: 0,
               scale: 1,
-              rotation: 0,
-              duration: 1.3,
-              ease: 'power2.out',
+              duration: 0.9,
+              ease: 'back.out(1.6)',
               onComplete: () => {
                 gsap.to('.person, .star2', {
                   y: -20,
@@ -458,81 +593,29 @@
                 });
               },
             },
-            '-=0.7'
+            T_PERSON
           );
 
-          kv.to(
-            '.slogan',
-            {
-              opacity: 1,
-              scale: 1,
-              duration: 0.6,
-              stagger: 0.2,
-              ease: 'power2.out',
-              onComplete: () => {
-                // 輪流微微閃動效果
-                const slogans = document.querySelectorAll('.slogan');
-                slogans.forEach((slogan, index) => {
-                  gsap.to(slogan, {
-                    opacity: 0.8,
-                    duration: 0.4,
-                    delay: index * 0.15,
-                    ease: 'power2.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                    repeatDelay: (slogans.length - 1) * 0.2,
-                  });
-                });
-              },
+          // 2-4. 上方閃爍光：光芒像煙火一樣從中心長出線段（各自錯開、無限重複），
+          //      四角閃光星跳出後一閃一閃
+          kv.call(
+            () => {
+              document
+                .querySelectorAll('.light')
+                .forEach((light, index) => startFirework(light, index));
             },
-            '-=0.8'
+            null,
+            T_SPARKLE
           );
-
-          kv.to(
-            '.light',
-            {
-              clipPath: 'circle(71% at 50% 50%)',
-              duration: 0.8,
-              stagger: 0.15,
-              ease: 'power2.out',
-              onComplete: () => {
-                document.querySelectorAll('.light').forEach((light, index) => {
-                  // 慢慢 360 度旋轉，順逆時針交錯；
-                  // 每個轉速、開始時間都不同，避免彼此同步
-                  gsap.to(light, {
-                    rotation: index % 2 === 0 ? '+=360' : '-=360',
-                    duration: gsap.utils.random(8, 20),
-                    delay: gsap.utils.random(0, 3),
-                    ease: 'none',
-                    repeat: -1,
-                  });
-
-                  // 不同步地微微閃爍
-                  gsap.to(light, {
-                    scale: 0.75,
-                    opacity: 0.6,
-                    duration: gsap.utils.random(0.8, 2.2),
-                    delay: gsap.utils.random(0, 2),
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  });
-                });
-              },
-            },
-            '-=0.4'
-          );
-
           kv.to(
             '.star',
             {
               opacity: 1,
               scale: 1,
               duration: 0.4,
-              stagger: 0.25,
+              stagger: 0.2,
               ease: 'back.out(2)',
               onComplete: () => {
-                // 閃光星各自不定時一閃一閃
                 document.querySelectorAll('.star').forEach((star) => {
                   gsap.to(star, {
                     scale: 0.35,
@@ -547,7 +630,34 @@
                 });
               },
             },
-            '-=0.3'
+            T_SPARKLE
+          );
+
+          // 3. 四個字依序出現，之後輪流微微閃動
+          kv.to(
+            '.slogan',
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.6,
+              stagger: 0.2,
+              ease: 'power2.out',
+              onComplete: () => {
+                const slogans = document.querySelectorAll('.slogan');
+                slogans.forEach((slogan, index) => {
+                  gsap.to(slogan, {
+                    opacity: 0.8,
+                    duration: 0.4,
+                    delay: index * 0.15,
+                    ease: 'power2.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                    repeatDelay: (slogans.length - 1) * 0.2,
+                  });
+                });
+              },
+            },
+            T_SLOGAN
           );
 
           kv.to(
@@ -558,7 +668,68 @@
               duration: 0.6,
               ease: 'power2.out',
             },
-            '-=0.3'
+            T_CARD
+          );
+
+          // 4. 燈籠像鐘擺：從畫面外放開，來回擺盪、幅度逐次變小，
+          //    最後接上持續的微微擺動（同一個角度銜接，不會跳）
+          kv.to('.lantern', { opacity: 1, duration: 0.3 }, T_LANTERN);
+          [
+            ['.lantern_left', 1, 0],
+            ['.lantern_right', -1, 0.2],
+          ].forEach(([selector, dir, offset]) => {
+            kv.to(
+              selector,
+              {
+                keyframes: LANTERN_SWING.slice(1).map((angle, i) => ({
+                  rotation: angle * dir,
+                  duration: LANTERN_SWING_TIME[i],
+                  ease: 'sine.inOut',
+                })),
+                onComplete: () => {
+                  const last = LANTERN_SWING[LANTERN_SWING.length - 1] * dir;
+                  gsap.fromTo(
+                    selector,
+                    { rotation: last },
+                    {
+                      rotation: -last,
+                      duration: dir > 0 ? 2.2 : 2.5,
+                      ease: 'sine.inOut',
+                      repeat: -1,
+                      yoyo: true,
+                    }
+                  );
+                },
+              },
+              T_LANTERN + offset
+            );
+          });
+
+          // 中國結從上方微微降下，再開始微微晃動
+          kv.to(
+            '.knot',
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1.1,
+              stagger: 0.15,
+              ease: 'back.out(1.4)',
+              onComplete: () => {
+                gsap.fromTo(
+                  '.knot',
+                  { rotation: 0 },
+                  {
+                    rotation: 3,
+                    duration: 1.8,
+                    stagger: 0.4,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+              },
+            },
+            T_KNOT
           );
 
           kv.play();
