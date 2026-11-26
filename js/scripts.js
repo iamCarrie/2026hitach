@@ -150,6 +150,7 @@
 
           switch (pathname) {
             case '':
+            case 'index.html':
               return initCard();
             case 'form.html':
               return initForm();
@@ -179,6 +180,12 @@
           fitStage();
           $(window).on('resize', fitStage);
 
+          fitCardText();
+          // 網路字型載入後字寬會改變，再量一次
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(fitCardText);
+          }
+
           initAnimation();
 
           sendEmail(data);
@@ -191,6 +198,147 @@
             window.innerHeight / 1080
           );
           document.documentElement.style.setProperty('--stage-scale', scale);
+        }
+
+        // 賀詞放在 1920x1080 舞台座標內，跟著舞台等比縮放，
+        // 所以每個解析度的排版都一樣。文字太長時縮小字級，
+        // 讓整塊（賀詞＋署名＋按鈕）維持在「新春快樂」下方、不超出畫面。
+        // 量的是排版尺寸（不受 transform 縮放影響），結果與視窗大小無關。
+        const CARD_MAX_HEIGHT = 200; // 設計稿 y=763 ~ 963
+        const CARD_FONT_MAX = 30;
+        const CARD_FONT_MIN = 16;
+        function fitCardText() {
+          const card = document.querySelector('.card-html');
+          if (!card) return;
+          let size = CARD_FONT_MAX;
+          const apply = () => {
+            card.style.fontSize = size + 'px';
+            card.style.lineHeight = Math.round(size * 1.67) + 'px';
+          };
+          apply();
+          while (card.offsetHeight > CARD_MAX_HEIGHT && size > CARD_FONT_MIN) {
+            size -= 1;
+            apply();
+          }
+        }
+
+        // 光芒：由 8 道線段組成，每道從中心往外長出、再從中心端收回（像煙火綻放）
+        const RAY_ANGLES = [-22, 23, 68, 113, 158, 203, 248, 293];
+        const RAY_START = 82; // 線段靠中心端的 x（viewBox 150x150，中心 75）
+        const RAY_END = 136; // 線段尖端 x
+        function buildFirework(el, index) {
+          const NS = 'http://www.w3.org/2000/svg';
+          const make = (tag, attrs, parent) => {
+            const node = document.createElementNS(NS, tag);
+            Object.keys(attrs).forEach((k) => node.setAttribute(k, attrs[k]));
+            if (parent) parent.appendChild(node);
+            return node;
+          };
+          const id = 'fw' + index;
+          const svg = make('svg', { viewBox: '0 0 150 150' });
+          const defs = make('defs', {}, svg);
+          const grad = make(
+            'linearGradient',
+            {
+              id: id + 'g',
+              x1: RAY_START,
+              y1: 0,
+              x2: RAY_END,
+              y2: 0,
+              gradientUnits: 'userSpaceOnUse',
+            },
+            defs
+          );
+          [
+            [0, '#f7d27c', 0.35],
+            [0.5, '#fbe58c', 0.85],
+            [1, '#fef59a', 1],
+          ].forEach(([offset, color, opacity]) =>
+            make(
+              'stop',
+              { offset, 'stop-color': color, 'stop-opacity': opacity },
+              grad
+            )
+          );
+          const blur = make(
+            'filter',
+            { id: id + 'f', x: '-10%', y: '-10%', width: '120%', height: '120%' },
+            defs
+          );
+          make('feGaussianBlur', { stdDeviation: 0.5 }, blur);
+
+          const group = make('g', { filter: `url(#${id}f)` }, svg);
+          const clips = RAY_ANGLES.map((angle, k) => {
+            // 每道光芒用一個矩形遮罩控制「露出的那一段」
+            const clip = make(
+              'clipPath',
+              { id: `${id}c${k}`, clipPathUnits: 'userSpaceOnUse' },
+              defs
+            );
+            const rect = make(
+              'rect',
+              { x: RAY_START, y: 70, width: 0, height: 10 },
+              clip
+            );
+            const ray = make(
+              'g',
+              { transform: `rotate(${angle} 75 75)` },
+              group
+            );
+            make(
+              'path',
+              {
+                d: 'M82 75.6 L132.5 77.6 A2.6 2.6 0 0 0 132.5 72.4 L82 74.4 Z',
+                fill: `url(#${id}g)`,
+                'clip-path': `url(#${id}c${k})`,
+              },
+              ray
+            );
+            return rect;
+          });
+          el.appendChild(svg);
+          return clips;
+        }
+
+        function startFirework(el, index) {
+          const rects = buildFirework(el, index);
+          const length = RAY_END - RAY_START;
+          const tl = gsap.timeline({
+            repeat: -1,
+            repeatDelay: gsap.utils.random(0.8, 1.8),
+            // 每個光芒錯開開始時間
+            delay: index * 0.45 + gsap.utils.random(0, 0.3),
+          });
+          // 從中心往外長出
+          tl.fromTo(
+            rects,
+            { attr: { x: RAY_START, width: 0 } },
+            {
+              attr: { width: length },
+              duration: 0.9,
+              ease: 'power3.out',
+              stagger: { each: 0.04, from: 'random' },
+            }
+          );
+          // 整體微微擴散
+          tl.fromTo(
+            el,
+            { scale: 0.85, opacity: 1 },
+            { scale: 1.08, duration: 1.8, ease: 'power1.out' },
+            0
+          );
+          // 中心端往尖端收回、淡出
+          tl.to(
+            rects,
+            {
+              attr: { x: RAY_END, width: 0 },
+              duration: 0.7,
+              ease: 'power2.in',
+              stagger: { each: 0.04, from: 'random' },
+            },
+            1.3
+          );
+          tl.to(el, { opacity: 0.4, duration: 0.7, ease: 'power1.in' }, '<');
         }
 
         // 啟用動畫
@@ -271,12 +419,22 @@
             scale: 0.8,
           });
 
-          // 光芒：用圓形遮罩從中心往外長出來；起始角度各自隨機
-          gsap.set('.light', {
-            clipPath: 'circle(0% at 50% 50%)',
-            rotation: () => gsap.utils.random(0, 360),
-            transformOrigin: 'center center',
+          // 左下、右下花枝：從角落滑入，支點設在花枝根部
+          gsap.set('.flower_left', {
+            opacity: 0,
+            x: -80,
+            rotation: -8,
+            transformOrigin: '0% 15%',
           });
+          gsap.set('.flower_right', {
+            opacity: 0,
+            x: 80,
+            y: 60,
+            rotation: 8,
+            transformOrigin: '85% 100%',
+          });
+
+          gsap.set('.light', { transformOrigin: 'center center' });
 
           gsap.set('.star', {
             opacity: 0,
@@ -364,6 +522,45 @@
               },
             },
             '-=1.6'
+          );
+
+          kv.to(
+            '.flower_side',
+            {
+              opacity: 1,
+              x: 0,
+              y: 0,
+              rotation: 0,
+              duration: 1.2,
+              stagger: 0.15,
+              ease: 'power2.out',
+              onComplete: () => {
+                // 進場後隨風微微晃動，左右節奏錯開
+                gsap.fromTo(
+                  '.flower_left',
+                  { rotation: -1.5 },
+                  {
+                    rotation: 1.5,
+                    duration: 2.8,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+                gsap.fromTo(
+                  '.flower_right',
+                  { rotation: 1.5 },
+                  {
+                    rotation: -1.5,
+                    duration: 3.2,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+              },
+            },
+            '<'
           );
 
           kv.to(
@@ -488,38 +685,14 @@
             '-=0.8'
           );
 
-          kv.to(
-            '.light',
-            {
-              clipPath: 'circle(71% at 50% 50%)',
-              duration: 0.8,
-              stagger: 0.15,
-              ease: 'power2.out',
-              onComplete: () => {
-                document.querySelectorAll('.light').forEach((light, index) => {
-                  // 慢慢 360 度旋轉，順逆時針交錯；
-                  // 每個轉速、開始時間都不同，避免彼此同步
-                  gsap.to(light, {
-                    rotation: index % 2 === 0 ? '+=360' : '-=360',
-                    duration: gsap.utils.random(8, 20),
-                    delay: gsap.utils.random(0, 3),
-                    ease: 'none',
-                    repeat: -1,
-                  });
-
-                  // 不同步地微微閃爍
-                  gsap.to(light, {
-                    scale: 0.75,
-                    opacity: 0.6,
-                    duration: gsap.utils.random(0.8, 2.2),
-                    delay: gsap.utils.random(0, 2),
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  });
-                });
-              },
+          // 光芒：像煙火一樣從中心長出線段，每個錯開時間、無限重複
+          kv.call(
+            () => {
+              document
+                .querySelectorAll('.light')
+                .forEach((light, index) => startFirework(light, index));
             },
+            null,
             '-=0.4'
           );
 

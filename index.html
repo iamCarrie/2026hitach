@@ -19,8 +19,21 @@
     <div class="bg-card"></div>
     <div class="index">
       <div class="content">
+        <!-- 左下、右下花枝：貼齊視窗角落，放在舞台後面 -->
+        <div class="flower_container">
+          <img class="flower_side flower_left" src="./images/flower_left.png" />
+          <img class="flower_side flower_right" src="./images/flower_right.png" />
+        </div>
         <!-- 1920x1080 設計稿舞台，座標直接對應 card.jpg -->
         <div class="items">
+          <!-- 光芒放在舞台最底層，不擋到前面畫面；內容由 scripts.js 產生 SVG 線段 -->
+          <div class="item light light1"></div>
+          <div class="item light light2"></div>
+          <div class="item light light3"></div>
+          <div class="item light light4"></div>
+          <div class="item light light5"></div>
+          <div class="item light light6"></div>
+
           <img class="item flower_top" src="./images/flower_top.png" />
 
           <img class="item goat" src="./images/goat.png" />
@@ -54,13 +67,6 @@
             class="item slogan slogan_image_3"
             src="./images/slogan_image_3.png"
           />
-
-          <img class="item light light1" src="./images/light.svg" />
-          <img class="item light light2" src="./images/light.svg" />
-          <img class="item light light3" src="./images/light.svg" />
-          <img class="item light light4" src="./images/light.svg" />
-          <img class="item light light5" src="./images/light.svg" />
-          <img class="item light light6" src="./images/light.svg" />
 
           <div class="card card-html">
             <div class="card-content"></div>

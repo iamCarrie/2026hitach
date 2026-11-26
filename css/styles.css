@@ -293,7 +293,10 @@ body::-webkit-scrollbar {
 .card-link {
   display: block;
 }
-/* 賀詞文字：右緣對齊設計稿 x=1772 */
+/* 賀詞文字：右緣對齊設計稿 x=1772。
+   以底部定位（按鈕底緣 y=963），文字多時往上長；
+   字級由 scripts.js 的 fitCardText 在舞台座標內縮放，
+   因此所有解析度看到的排版都相同 */
 .card-html {
   color: #fff;
   font-size: 30px;
@@ -303,9 +306,10 @@ body::-webkit-scrollbar {
   text-shadow: 0 2px 6px rgba(120, 0, 0, 0.5);
   position: absolute;
   right: 148px;
-  top: 780px;
+  bottom: 117px;
   width: auto;
-  max-width: 620px;
+  /* 左緣不超過 x=1252，避免壓到羊腿與緞帶 */
+  max-width: 520px;
 }
 .card-html .card-content {
   width: auto;
@@ -619,6 +623,42 @@ body::-webkit-scrollbar {
   width: 147px;
   left: 427px;
   top: 954px;
+}
+
+.light svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* 左下、右下花枝：貼齊視窗角落，尺寸跟著舞台比例縮放；
+   稍微推出視窗外，擺動時邊緣才不會露出空隙 */
+.flower_container {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.flower_side {
+  position: absolute;
+  filter: drop-shadow(3px 6px 6px rgba(90, 0, 0, 0.45));
+}
+
+.flower_left {
+  width: calc(205px * var(--stage-scale, 1));
+  left: calc(-8px * var(--stage-scale, 1));
+  bottom: calc(70px * var(--stage-scale, 1));
+}
+
+.flower_right {
+  width: calc(400px * var(--stage-scale, 1));
+  right: calc(-10px * var(--stage-scale, 1));
+  bottom: calc(-10px * var(--stage-scale, 1));
 }
 
 /* 全螢幕容器不攔截點擊，避免擋住舞台內的按鈕 */
