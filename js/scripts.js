@@ -372,39 +372,36 @@
             delay: 0.5,
           });
 
-          // 設定初始狀態
-          // 燈籠、中國結：從上方垂下，擺動支點設在吊繩頂端
-          gsap.set('.lantern, .knot', {
-            opacity: 0,
-            y: -250,
-          });
-          gsap.set('.lantern_left', { transformOrigin: '30.5% 0%', rotation: -12 });
-          gsap.set('.lantern_right', { transformOrigin: '74.3% 0%', rotation: 12 });
-          gsap.set('.knot', { transformOrigin: '50% 0%', rotation: -10 });
-
+          // 設定初始狀態 ------------------------------------------------
+          // 1. 花：微微旋轉進場，支點設在花枝根部
           gsap.set('.flower_top', {
             opacity: 0,
-            y: -30,
+            rotation: -12,
+            scale: 0.92,
             transformOrigin: '22% 0%',
           });
+          gsap.set('.flower_left', {
+            opacity: 0,
+            rotation: -14,
+            scale: 0.92,
+            transformOrigin: '0% 15%',
+          });
+          gsap.set('.flower_right', {
+            opacity: 0,
+            rotation: 14,
+            scale: 0.92,
+            transformOrigin: '85% 100%',
+          });
 
+          // 2. 羊 → 雲 → 人 → 上方閃爍光
           gsap.set('.goat', {
             opacity: 0,
             x: 150,
             scale: 0.95,
             transformOrigin: 'center center',
           });
-
-          gsap.set('.cloud_01, .cloud_03', {
-            opacity: 0,
-            x: 80,
-          });
-
-          gsap.set('.cloud_02', {
-            opacity: 0,
-            x: -80,
-          });
-
+          gsap.set('.cloud_01, .cloud_03', { opacity: 0, x: 80 });
+          gsap.set('.cloud_02', { opacity: 0, x: -80 });
           gsap.set('.person', {
             opacity: 0,
             x: -150,
@@ -413,105 +410,60 @@
             rotation: -10,
             transformOrigin: 'center bottom',
           });
-
-          gsap.set('.slogan', {
-            opacity: 0,
-            scale: 0.8,
-          });
-
-          // 左下、右下花枝：從角落滑入，支點設在花枝根部
-          gsap.set('.flower_left', {
-            opacity: 0,
-            x: -80,
-            rotation: -8,
-            transformOrigin: '0% 15%',
-          });
-          gsap.set('.flower_right', {
-            opacity: 0,
-            x: 80,
-            y: 60,
-            rotation: 8,
-            transformOrigin: '85% 100%',
-          });
-
           gsap.set('.light', { transformOrigin: 'center center' });
-
           gsap.set('.star', {
             opacity: 0,
             scale: 0,
             transformOrigin: 'center center',
           });
 
-          gsap.set('.card-html', {
+          // 3. 四個字「新春快樂」與賀詞
+          gsap.set('.slogan', { opacity: 0, scale: 0.8 });
+          gsap.set('.card-html', { opacity: 0, y: 30 });
+
+          // 4. 燈籠從左右兩側晃進來（擺動支點在吊繩頂端），
+          //    中國結從上方微微降下
+          gsap.set('.lantern', { opacity: 0 });
+          gsap.set('.lantern_left', {
+            transformOrigin: '30.5% 0%',
+            x: -260,
+            rotation: 28,
+          });
+          gsap.set('.lantern_right', {
+            transformOrigin: '74.3% 0%',
+            x: 260,
+            rotation: -28,
+          });
+          gsap.set('.knot', {
             opacity: 0,
-            y: 30,
+            y: -70,
+            rotation: 0,
+            transformOrigin: '50% 0%',
           });
 
-          // 燈籠、中國結垂下進場：下降時帶著晃動，回彈後停在中間
-          kv.to('.lantern, .knot', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            stagger: 0.12,
-            ease: 'power2.out',
-          });
-          kv.to(
-            '.lantern, .knot',
-            {
-              rotation: 0,
-              duration: 1.8,
-              stagger: 0.12,
-              ease: 'elastic.out(1.2, 0.35)',
-              onComplete: () => {
-                // 之後持續微微擺動，像被風吹
-                gsap.fromTo(
-                  '.lantern_left',
-                  { rotation: -2.5 },
-                  {
-                    rotation: 2.5,
-                    duration: 2.2,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
-                gsap.fromTo(
-                  '.lantern_right',
-                  { rotation: 2.5 },
-                  {
-                    rotation: -2.5,
-                    duration: 2.5,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
-                gsap.fromTo(
-                  '.knot',
-                  { rotation: -3 },
-                  {
-                    rotation: 3,
-                    duration: 1.8,
-                    stagger: 0.4,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
-              },
-            },
-            '<'
-          );
+          // 時間軸（秒），各段互相重疊 ------------------------------------
+          const T_FLOWER = 0;
+          const T_GOAT = 0.7;
+          const T_CLOUD = 1.3;
+          const T_PERSON = 1.8;
+          const T_SPARKLE = 2.6;
+          const T_SLOGAN = 3.0;
+          const T_CARD = 3.7;
+          const T_LANTERN = 4.0;
+          const T_KNOT = 4.6;
 
+          // 1. 花微微轉進來
           kv.to(
-            '.flower_top',
+            '.flower_top, .flower_left, .flower_right',
             {
               opacity: 1,
-              y: 0,
-              duration: 0.8,
+              rotation: 0,
+              scale: 1,
+              duration: 1.3,
+              stagger: 0.12,
               ease: 'power2.out',
               onComplete: () => {
-                // 花枝隨風微微搖曳
+                // 之後隨風微微晃動，三枝節奏錯開
                 gsap.to('.flower_top', {
                   rotation: 2,
                   duration: 2.5,
@@ -519,26 +471,9 @@
                   repeat: -1,
                   yoyo: true,
                 });
-              },
-            },
-            '-=1.6'
-          );
-
-          kv.to(
-            '.flower_side',
-            {
-              opacity: 1,
-              x: 0,
-              y: 0,
-              rotation: 0,
-              duration: 1.2,
-              stagger: 0.15,
-              ease: 'power2.out',
-              onComplete: () => {
-                // 進場後隨風微微晃動，左右節奏錯開
                 gsap.fromTo(
                   '.flower_left',
-                  { rotation: -1.5 },
+                  { rotation: 0 },
                   {
                     rotation: 1.5,
                     duration: 2.8,
@@ -549,7 +484,7 @@
                 );
                 gsap.fromTo(
                   '.flower_right',
-                  { rotation: 1.5 },
+                  { rotation: 0 },
                   {
                     rotation: -1.5,
                     duration: 3.2,
@@ -560,9 +495,10 @@
                 );
               },
             },
-            '<'
+            T_FLOWER
           );
 
+          // 2-1. 羊
           kv.to(
             '.goat',
             {
@@ -582,9 +518,10 @@
                 });
               },
             },
-            '-=1.2'
+            T_GOAT
           );
 
+          // 2-2. 雲
           kv.to(
             '.cloud',
             {
@@ -622,9 +559,10 @@
                 });
               },
             },
-            '-=0.8'
+            T_CLOUD
           );
 
+          // 2-3. 人
           kv.to(
             '.person',
             {
@@ -655,37 +593,11 @@
                 });
               },
             },
-            '-=0.7'
+            T_PERSON
           );
 
-          kv.to(
-            '.slogan',
-            {
-              opacity: 1,
-              scale: 1,
-              duration: 0.6,
-              stagger: 0.2,
-              ease: 'power2.out',
-              onComplete: () => {
-                // 輪流微微閃動效果
-                const slogans = document.querySelectorAll('.slogan');
-                slogans.forEach((slogan, index) => {
-                  gsap.to(slogan, {
-                    opacity: 0.8,
-                    duration: 0.4,
-                    delay: index * 0.15,
-                    ease: 'power2.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                    repeatDelay: (slogans.length - 1) * 0.2,
-                  });
-                });
-              },
-            },
-            '-=0.8'
-          );
-
-          // 光芒：像煙火一樣從中心長出線段，每個錯開時間、無限重複
+          // 2-4. 上方閃爍光：光芒像煙火一樣從中心長出線段（各自錯開、無限重複），
+          //      四角閃光星跳出後一閃一閃
           kv.call(
             () => {
               document
@@ -693,19 +605,17 @@
                 .forEach((light, index) => startFirework(light, index));
             },
             null,
-            '-=0.4'
+            T_SPARKLE
           );
-
           kv.to(
             '.star',
             {
               opacity: 1,
               scale: 1,
               duration: 0.4,
-              stagger: 0.25,
+              stagger: 0.2,
               ease: 'back.out(2)',
               onComplete: () => {
-                // 閃光星各自不定時一閃一閃
                 document.querySelectorAll('.star').forEach((star) => {
                   gsap.to(star, {
                     scale: 0.35,
@@ -720,7 +630,34 @@
                 });
               },
             },
-            '-=0.3'
+            T_SPARKLE
+          );
+
+          // 3. 四個字依序出現，之後輪流微微閃動
+          kv.to(
+            '.slogan',
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.6,
+              stagger: 0.2,
+              ease: 'power2.out',
+              onComplete: () => {
+                const slogans = document.querySelectorAll('.slogan');
+                slogans.forEach((slogan, index) => {
+                  gsap.to(slogan, {
+                    opacity: 0.8,
+                    duration: 0.4,
+                    delay: index * 0.15,
+                    ease: 'power2.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                    repeatDelay: (slogans.length - 1) * 0.2,
+                  });
+                });
+              },
+            },
+            T_SLOGAN
           );
 
           kv.to(
@@ -731,7 +668,81 @@
               duration: 0.6,
               ease: 'power2.out',
             },
-            '-=0.3'
+            T_CARD
+          );
+
+          // 4. 燈籠從左、右兩側晃進來，回彈後持續微微擺動
+          kv.to(
+            '.lantern',
+            {
+              opacity: 1,
+              x: 0,
+              duration: 1,
+              stagger: 0.15,
+              ease: 'power2.out',
+            },
+            T_LANTERN
+          );
+          kv.to(
+            '.lantern',
+            {
+              rotation: 0,
+              duration: 2,
+              stagger: 0.15,
+              ease: 'elastic.out(1.1, 0.35)',
+              onComplete: () => {
+                gsap.fromTo(
+                  '.lantern_left',
+                  { rotation: 0 },
+                  {
+                    rotation: 2.5,
+                    duration: 2.2,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+                gsap.fromTo(
+                  '.lantern_right',
+                  { rotation: 0 },
+                  {
+                    rotation: -2.5,
+                    duration: 2.5,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+              },
+            },
+            T_LANTERN
+          );
+
+          // 中國結從上方微微降下，再開始微微晃動
+          kv.to(
+            '.knot',
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1.1,
+              stagger: 0.15,
+              ease: 'back.out(1.4)',
+              onComplete: () => {
+                gsap.fromTo(
+                  '.knot',
+                  { rotation: 0 },
+                  {
+                    rotation: 3,
+                    duration: 1.8,
+                    stagger: 0.4,
+                    ease: 'sine.inOut',
+                    repeat: -1,
+                    yoyo: true,
+                  }
+                );
+              },
+            },
+            T_KNOT
           );
 
           kv.play();
