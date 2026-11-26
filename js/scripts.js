@@ -400,9 +400,10 @@
           });
 
           // 2. 羊 → 雲 → 人 → 上方閃爍光
+          // 羊：從左邊進來
           gsap.set('.goat', {
             opacity: 0,
-            x: 150,
+            x: -150,
             scale: 0.95,
             transformOrigin: 'center center',
           });
