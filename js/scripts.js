@@ -145,16 +145,18 @@
         }
 
         $(function () {
+          // 取網址最後一段當頁面名稱，去掉 .html：
+          // GitHub Pages 等主機可用 /form 開啟 form.html，兩種寫法都要認得
           let pathname = location.pathname.split('/');
-          pathname = pathname[pathname.length - 1];
+          pathname = pathname[pathname.length - 1].replace(/\.html$/, '');
 
           switch (pathname) {
             case '':
-            case 'index.html':
+            case 'index':
               return initCard();
-            case 'form.html':
+            case 'form':
               return initForm();
-            case 'card.html':
+            case 'card':
               return initStaticCard();
             default:
               return;
@@ -804,8 +806,11 @@
 
         function initForm() {
           $('.form-cta input').on('click', function (event) {
-            const name = $('#name').val();
-            const content = $('#content').val().replace(/\n\r?/g, '%0A');
+            // 編碼後才不會被內容裡的 & # ? 等符號截斷（換行也會編成 %0A）
+            const name = encodeURIComponent($('#name').val());
+            const content = encodeURIComponent(
+              $('#content').val().replace(/\r\n?/g, '\n')
+            );
             location.href =
               './?name=' + name + '&content=' + content + '&previewMode=true';
           });
