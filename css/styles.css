@@ -697,7 +697,7 @@ body::-webkit-scrollbar {
 .lantern_container .knot_left {
   width: calc(125px * var(--stage-scale, 1));
   left: calc(-2px * var(--stage-scale, 1));
-  top: calc(340px * var(--stage-scale, 1));
+  top: calc(375px * var(--stage-scale, 1));
 }
 
 /* 右燈籠往右推，吊繩從視窗右側邊緣進來，不卡在右上角 */
