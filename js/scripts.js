@@ -222,6 +222,12 @@
           }
         }
 
+        // 燈籠鐘擺進場：各擺動端點角度（左燈籠；右燈籠鏡像），
+        // 最後一個角度＝持續擺動的幅度，銜接才不會跳
+        const LANTERN_SWING = [40, -14, 6, -2.5];
+        // 每一次擺動的時間（秒）：像真的吊著的物體，節奏接近、略為放慢
+        const LANTERN_SWING_TIME = [1.1, 1.0, 1.1];
+
         // 光芒：由 8 道線段組成，每道從中心往外長出、再從中心端收回（像煙火綻放）
         const RAY_ANGLES = [-22, 23, 68, 113, 158, 203, 248, 293];
         const RAY_START = 82; // 線段靠中心端的 x（viewBox 150x150，中心 75）
@@ -402,12 +408,11 @@
           });
           gsap.set('.cloud_01, .cloud_03', { opacity: 0, x: 80 });
           gsap.set('.cloud_02', { opacity: 0, x: -80 });
+          // 人：原地由小放大出現
           gsap.set('.person', {
             opacity: 0,
-            x: -150,
-            y: 150,
-            scale: 0.9,
-            transformOrigin: 'center bottom',
+            scale: 0.4,
+            transformOrigin: 'center center',
           });
           gsap.set('.light', { transformOrigin: 'center center' });
           gsap.set('.star', {
@@ -420,18 +425,16 @@
           gsap.set('.slogan', { opacity: 0, scale: 0.8 });
           gsap.set('.card-html', { opacity: 0, y: 30 });
 
-          // 4. 燈籠從左右兩側晃進來（擺動支點在吊繩頂端），
+          // 4. 燈籠像鐘擺一樣從左右兩側盪進來（支點在吊繩頂端），
           //    中國結從上方微微降下
           gsap.set('.lantern', { opacity: 0 });
           gsap.set('.lantern_left', {
             transformOrigin: '30.5% 0%',
-            x: -260,
-            rotation: 28,
+            rotation: LANTERN_SWING[0],
           });
           gsap.set('.lantern_right', {
             transformOrigin: '74.3% 0%',
-            x: 260,
-            rotation: -28,
+            rotation: -LANTERN_SWING[0],
           });
           gsap.set('.knot', {
             opacity: 0,
@@ -449,7 +452,7 @@
           const T_SLOGAN = 3.0;
           const T_CARD = 3.7;
           const T_LANTERN = 4.0;
-          const T_KNOT = 4.6;
+          const T_KNOT = 5.6; // 燈籠擺幅變小後才降下，左邊中國結繩頭才不會露出
 
           // 1. 花微微轉進來
           kv.to(
@@ -566,11 +569,9 @@
             '.person',
             {
               opacity: 1,
-              x: 0,
-              y: 0,
               scale: 1,
-              duration: 1.3,
-              ease: 'power2.out',
+              duration: 0.9,
+              ease: 'back.out(1.6)',
               onComplete: () => {
                 gsap.to('.person, .star2', {
                   y: -20,
@@ -669,52 +670,39 @@
             T_CARD
           );
 
-          // 4. 燈籠從左、右兩側晃進來，回彈後持續微微擺動
-          kv.to(
-            '.lantern',
-            {
-              opacity: 1,
-              x: 0,
-              duration: 1,
-              stagger: 0.15,
-              ease: 'power2.out',
-            },
-            T_LANTERN
-          );
-          kv.to(
-            '.lantern',
-            {
-              rotation: 0,
-              duration: 2,
-              stagger: 0.15,
-              ease: 'elastic.out(1.1, 0.35)',
-              onComplete: () => {
-                gsap.fromTo(
-                  '.lantern_left',
-                  { rotation: 0 },
-                  {
-                    rotation: 2.5,
-                    duration: 2.2,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
-                gsap.fromTo(
-                  '.lantern_right',
-                  { rotation: 0 },
-                  {
-                    rotation: -2.5,
-                    duration: 2.5,
-                    ease: 'sine.inOut',
-                    repeat: -1,
-                    yoyo: true,
-                  }
-                );
+          // 4. 燈籠像鐘擺：從畫面外放開，來回擺盪、幅度逐次變小，
+          //    最後接上持續的微微擺動（同一個角度銜接，不會跳）
+          kv.to('.lantern', { opacity: 1, duration: 0.3 }, T_LANTERN);
+          [
+            ['.lantern_left', 1, 0],
+            ['.lantern_right', -1, 0.2],
+          ].forEach(([selector, dir, offset]) => {
+            kv.to(
+              selector,
+              {
+                keyframes: LANTERN_SWING.slice(1).map((angle, i) => ({
+                  rotation: angle * dir,
+                  duration: LANTERN_SWING_TIME[i],
+                  ease: 'sine.inOut',
+                })),
+                onComplete: () => {
+                  const last = LANTERN_SWING[LANTERN_SWING.length - 1] * dir;
+                  gsap.fromTo(
+                    selector,
+                    { rotation: last },
+                    {
+                      rotation: -last,
+                      duration: dir > 0 ? 2.2 : 2.5,
+                      ease: 'sine.inOut',
+                      repeat: -1,
+                      yoyo: true,
+                    }
+                  );
+                },
               },
-            },
-            T_LANTERN
-          );
+              T_LANTERN + offset
+            );
+          });
 
           // 中國結從上方微微降下，再開始微微晃動
           kv.to(
